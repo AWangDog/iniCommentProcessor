@@ -60,7 +60,8 @@ class App:
         self.config['function'] = {
             'add': 'True',
             'mode': '0',
-            'algorithm': '0'
+            'algorithm': '0',
+            'fps': '1'
         }
         with open('config.cfg', 'w', encoding='utf-8') as configfile:
             self.config.write(configfile)
@@ -73,6 +74,7 @@ class App:
         self.input_path = StringVar(value=self.config.get('Paths', 'input_path', fallback=''))
         self.output_path = StringVar(value=self.config.get('Paths', 'output_path', fallback=''))
         self.keywords_path = StringVar(value=self.config.get('Paths', 'keywords_path', fallback=''))
+        self.fps = self.config.getint('function', 'fps', fallback=1)
         if main:
             self.add_comments = BooleanVar(value=self.config.getboolean('function', 'add', fallback=True))
             self.comment_mode = IntVar(value=self.config.getint('function', 'mode', fallback=0))
@@ -172,6 +174,10 @@ class App:
             global algorithm_str
             algorithm_str = "1-整体"
             processed_key = 0
+            global fps
+            fps = len(keyword_dict) * (self.fps / 100)
+            global all_processed
+            all_processed = len(keyword_dict)
             with open(input, 'r', encoding='utf-8') as input_file:  # 打开规则文件进行读取
                             with open(output, 'w', encoding='utf-8') as output_file:  # 打开输出文件进行写入
                                 if self.comment_mode.get() == 0 or self.comment_mode.get() == 2:
@@ -183,9 +189,10 @@ class App:
                                         subst = f"\\g<1>;\\g<2> {comment}"
                                         file_str = re.sub(regex, subst, file_str)
                                         processed_key += 1
-                                        progress = processed_key / len(keyword_dict) * 100  # 计算进度百分比
-                                        self.progress_bar["value"] = progress  # 更新进度条的值
-                                        self.progress_bar.update()  # 更新进度条显示
+                                        if processed_key % int(fps) == 0:
+                                            progress = processed_key / len(keyword_dict) * 100  # 计算进度百分比
+                                            self.progress_bar["value"] = progress  # 更新进度条的值
+                                            self.progress_bar.update()  # 更新进度条显示
                                     output_file.write(file_str)
                                 elif self.comment_mode.get() == 1:
                                     file_str = input_file.read()
@@ -194,18 +201,23 @@ class App:
                                         subst = f"\\g<1>; {comment}"
                                         file_str = re.sub(regex, subst, file_str)
                                         processed_key += 1
-                                        progress = processed_key / len(keyword_dict) * 100  # 计算进度百分比
-                                        self.progress_bar["value"] = progress  # 更新进度条的值
-                                        self.progress_bar.update()  # 更新进度条显示
+                                        if processed_key % int(fps) == 0:
+                                            progress = processed_key / len(keyword_dict) * 100  # 计算进度百分比
+                                            self.progress_bar["value"] = progress  # 更新进度条的值
+                                            self.progress_bar.update()  # 更新进度条显示
                                     output_file.write(file_str)
 
 
         def algorithm2():
             global algorithm_str
+            global fps
+            global all_processed
             algorithm_str = "2-逐行"
             processed_lines = 0  # 初始化已处理行数
+            all_processed = input_lines
             with open(input, 'r', encoding='utf-8') as input_file:  # 打开规则文件进行读取
                 with open(output, 'w', encoding='utf-8') as output_file:  # 打开输出文件进行写入
+                    fps = input_lines * (self.fps / 100)
                     if self.comment_mode.get() == 0:
                                 for line in input_file:  # 遍历规则文件的每一行
                                     if not line:
@@ -216,9 +228,10 @@ class App:
                                             break
                                     output_file.write(line)  # 将处理后的行写入输出文件
                                     processed_lines += 1  # 增加已处理行数计数
-                                    progress = processed_lines / input_lines * 100  # 计算进度百分比
-                                    self.progress_bar["value"] = progress  # 更新进度条的值
-                                    self.progress_bar.update()  # 更新进度条显示
+                                    if processed_lines % int(fps) == 0:
+                                        progress = processed_lines / input_lines * 100  # 计算进度百分比
+                                        self.progress_bar["value"] = progress  # 更新进度条的值
+                                        self.progress_bar.update()  # 更新进度条显示
                     
                     elif self.comment_mode.get() == 1:
                                 for line in input_file:  # 遍历规则文件的每一行
@@ -229,9 +242,10 @@ class App:
                                             break
                                     output_file.write(line)  # 将处理后的行写入输出文件
                                     processed_lines += 1  # 增加已处理行数计数
-                                    progress = processed_lines / input_lines * 100  # 计算进度百分比
-                                    self.progress_bar["value"] = progress  # 更新进度条的值
-                                    self.progress_bar.update()  # 更新进度条显示
+                                    if processed_lines % int(fps) == 0:
+                                        progress = processed_lines / input_lines * 100  # 计算进度百分比
+                                        self.progress_bar["value"] = progress  # 更新进度条的值
+                                        self.progress_bar.update()  # 更新进度条显示
 
                     elif self.comment_mode.get() == 2:
                                 for line in input_file:  # 遍历规则文件的每一行
@@ -249,9 +263,10 @@ class App:
 
                                     output_file.write(line)  # 将处理后的行写入输出文件
                                     processed_lines += 1  # 增加已处理行数计数
-                                    progress = processed_lines / input_lines * 100  # 计算进度百分比
-                                    self.progress_bar["value"] = progress  # 更新进度条的值
-                                    self.progress_bar.update()  # 更新进度条显示
+                                    if processed_lines % int(fps) == 0:
+                                        progress = processed_lines / input_lines * 100  # 计算进度百分比
+                                        self.progress_bar["value"] = progress  # 更新进度条的值
+                                        self.progress_bar.update()  # 更新进度条显示
         start_time = time.time() 
         keyword_dict = {}  # 创建一个空的关键字字典
         if self.add_comments.get():
@@ -287,11 +302,21 @@ class App:
             mode_str = "删除注释"
         with open(output, 'r', encoding='utf-8') as input_file:
             output_lines = sum(1 for _ in input_file)
+        self.progress_bar["value"] = 100  # 更新进度条的值
+        self.progress_bar.update()  # 更新进度条显示
         elapsed_time = time.time() - start_time 
         log_data = { 
-            "mode": self.comment_mode.get(), 
-            "algorithm": self.algorithm, 
-            "input_file": { 
+            "config": { 
+                "add": self.add_comments.get(),
+                "mode": self.comment_mode.get(), 
+                "algorithm": self.algorithm, 
+                "fps": f"{self.fps}%",
+            }, 
+            "date": {
+                "fps": f"{fps}/{all_processed}"
+
+            },
+            "file": { 
                 "input": { 
                     "path": input, 
                     "line": input_lines 
@@ -315,7 +340,7 @@ class App:
             f.write(json.dumps(log_data, ensure_ascii=False) + "\n")
         print(json.dumps(log_data, ensure_ascii=False), end="")
         print("\n")
-        messagebox.showinfo("注释完成！", f"操作: {mode_str}\n算法: {auto_algorithm_str}{algorithm_str}\n用时: {self.format_time(elapsed_time)}")
+        messagebox.showinfo("注释完成！", f"操作: {mode_str}\n算法: {auto_algorithm_str}{algorithm_str}\n用时: {self.format_time(elapsed_time)}\n进度条刷新率: {self.fps}%")
         self.run_button.config(state=NORMAL)
 
 root = Tk()
