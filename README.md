@@ -3,9 +3,12 @@ ini文件注释器
 
 - 为ini文件一键在匹配关键字添加注释
 
+
 高级用法：
 
-需要更改config.ini
+- 需要更改config.ini
+
+'''
 
 [Paths]
 
@@ -14,7 +17,6 @@ input_path =
 output_path = 
 
 keywords_path = 
-
 
 [function]
 
@@ -26,9 +28,10 @@ algorithm = 0 ;这个是算法，默认0为自动选择，1为算法1  2为算�
 
 fps = 1 ;这个是进度条刷新率，百分比形式，1-100%，建议无特殊需求不要更改
 
-ps.
+'''
 
-算法1可能没有算法2准确，如果遇到bug请选择算法2
+
+ps.算法1可能没有算法2准确，如果遇到bug请选择算法2
 
 
 ![image](https://github.com/AWangDog/iniCommentProcessor/assets/119655861/8e189d59-74d5-43f1-854a-30375a38d173)
