@@ -7,6 +7,8 @@ import json
 import datetime
 import time
 import re
+import urllib.request
+import hashlib
 
 class App:    
     def __init__(self, master):
@@ -15,7 +17,16 @@ class App:
         self.remove_comments = BooleanVar(value=True)
         self.master = master
         master.title("ini注释器")
-        root.resizable(False, False)
+        url = "https://raw.fgit.cf/AWangDog/iniCommentProcessor/main/1.ico"
+        if not os.path.exists("1.ico"):
+            download_thread = threading.Thread(target=self.download_file, args=(url, "1.ico"))
+            download_thread.start()
+        elif self.calculate_file_hash("1.ico") != "70cc49b88e390848700222dd3cd19df2":
+            download_thread = threading.Thread(target=self.download_file, args=(url, "1.ico"))
+            download_thread.start()
+        else:
+            master.iconbitmap("1.ico")
+        master.resizable(False, False)
         self.config = configparser.ConfigParser()
         self.read_config(True)
 
@@ -51,6 +62,12 @@ class App:
         self.run_button = Button(master, text="开始运行", command=self.run)
         self.run_button.grid(row=3, column=1, padx=10, pady=10)
 
+    def calculate_file_hash(self, file_path):
+        with open(file_path, 'rb') as file:
+            data = file.read()
+            md5_hash = hashlib.md5(data).hexdigest()
+            return md5_hash
+
     def create_default_config(self):
         self.config['Paths'] = {
             'input_path': '',
@@ -78,6 +95,9 @@ class App:
         if main:
             self.add_comments = BooleanVar(value=self.config.getboolean('function', 'add', fallback=True))
             self.comment_mode = IntVar(value=self.config.getint('function', 'mode', fallback=0))
+    
+    def download_file(self, url, file_path):
+        urllib.request.urlretrieve(url, file_path)
 
     def choose_input_file(self):
         filename = filedialog.askopenfilename(
